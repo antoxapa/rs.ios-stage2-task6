@@ -25,6 +25,7 @@
     [[UIColor appGreenColor]setFill];
     [[UIColor appGreenColor]setStroke];
     CGContextFillPath(context);
+
 }
 
 

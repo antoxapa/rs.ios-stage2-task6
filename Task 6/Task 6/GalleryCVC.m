@@ -38,8 +38,6 @@
             [self.imageView.topAnchor constraintEqualToAnchor:self.topAnchor],
             [self.imageView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
             [self.imageView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],
-    //        [self.mainImage.heightAnchor constraintEqualToAnchor:self.heightAnchor],
-    //        [self.mainImage.widthAnchor constraintEqualToAnchor:self.widthAnchor],
         ]];
 }
 

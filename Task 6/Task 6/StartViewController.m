@@ -9,16 +9,24 @@
 #import "StartViewController.h"
 #import "TriangleView.h"
 #import "UIColor+HexString.h"
+#import "MediaManager.h"
+#import "CustonTabBarController.h"
 
 
 @interface StartViewController ()
+
+@property (nonatomic, strong) UIStackView *mainStackView;
+@property (nonatomic, strong) UIView *labelView;
+@property (nonatomic, strong) UIView *figuresView;
+@property (nonatomic, strong) UIView *buttonView;
 
 @property (nonatomic, strong) UIStackView *figuresStackView;
 @property (nonatomic, strong) UILabel *questionLabel;
 @property (nonatomic, strong) UIView *circleView;
 @property (nonatomic, strong) UIView *squreView;
-@property (nonatomic, strong) UIView *triangleView;
+@property (nonatomic, strong) TriangleView *triangleView;
 @property (nonatomic, strong) UIButton *nextButton;
+
 
 @end
 
@@ -26,12 +34,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = UIColor.whiteColor;
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:YES];
-    [self addSubviews];
+  
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+    
+       [self addSubviews];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -79,6 +86,14 @@
 
 - (void)addSubviews {
     
+    self.mainStackView = [[UIStackView alloc]init];
+    self.mainStackView.axis = UILayoutConstraintAxisVertical;
+    self.mainStackView.distribution = UIStackViewDistributionFillEqually;
+    
+    self.labelView = [UIView new];
+    self.buttonView = [UIView new];
+    self.figuresView = [UIView new];
+    
 #pragma mark: - QuestionLabel
     
     self.questionLabel = [[UILabel alloc]init];
@@ -87,11 +102,15 @@
     self.questionLabel.textAlignment = NSTextAlignmentCenter;
     [self.questionLabel setFont:[UIFont systemFontOfSize:24 weight:UIFontWeightMedium]];
     self.questionLabel.translatesAutoresizingMaskIntoConstraints = false;
-    [self.view addSubview:self.questionLabel];
+    [self.labelView addSubview:self.questionLabel];
+//    [self.view addSubview:self.questionLabel];
+    [self.mainStackView addArrangedSubview:self.labelView];
     
     //   Label Layout
-    [self.questionLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
-    [self.questionLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:self.view.bounds.size.height / 6].active = true;
+    [self.questionLabel.centerXAnchor constraintEqualToAnchor:self.labelView.centerXAnchor].active = true;
+//    [self.questionLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:self.view.bounds.size.height / 6].active = true;
+    [self.questionLabel.centerYAnchor constraintEqualToAnchor:self.labelView.centerYAnchor constant:15].active = true;
+    
     
 #pragma mark: - Views and FiguresStackView
     //  Configure CircleView
@@ -127,11 +146,15 @@
     [self.figuresStackView addArrangedSubview:self.triangleView];
     
     //    Add subviews in rootView
-    [self.view addSubview:self.figuresStackView];
+//    [self.view addSubview:self.figuresStackView];
+    [self.figuresView addSubview:self.figuresStackView];
+    [self.mainStackView addArrangedSubview:self.figuresView];
     
     //   StackView Layout
-    [self.figuresStackView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
-    [self.figuresStackView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:-(self.view.frame.size.height / 10)].active = true;
+    [self.figuresStackView.centerXAnchor constraintEqualToAnchor:self.figuresView.centerXAnchor].active = true;
+    [self.figuresStackView.topAnchor constraintEqualToAnchor:self.figuresView.topAnchor].active = true;
+    
+    
     
 #pragma mark: - NextButton
     
@@ -147,23 +170,45 @@
     self.nextButton.clipsToBounds = YES;
     
     self.nextButton.translatesAutoresizingMaskIntoConstraints = false;
-    [self.view addSubview:self.nextButton];
+//    [self.view addSubview:self.nextButton];
+    [self.buttonView addSubview:self.nextButton];
+    [self.mainStackView addArrangedSubview:self.buttonView];
+    [self.view addSubview:self.mainStackView];
+    self.mainStackView.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+        [self.mainStackView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+        [self.mainStackView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
+        [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
+        [self.mainStackView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
+        [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.widthAnchor],
+    ]];
     
     //    Button layout
     [NSLayoutConstraint activateConstraints:@[
         [self.nextButton.heightAnchor constraintEqualToConstant:55],
         [self.nextButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
-        [self.nextButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-        [self.nextButton.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-(self.view.bounds.size.height / 5)],
+        [self.nextButton.centerXAnchor constraintEqualToAnchor:self.buttonView.centerXAnchor],
+        [self.nextButton.topAnchor constraintEqualToAnchor:self.buttonView.topAnchor constant: 30],
     ]];
+
 }
 
 - (void)showNextVC {
-    [self.navigationController popViewControllerAnimated:YES];
+    UITabBarController *mainTBC = [CustonTabBarController new];
+    
+    [self.navigationController pushViewController:mainTBC animated:YES];
 }
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
+}
+
+- (void) applicationWillEnterForeground {
+    [self startAnimation];
+}
+
+- (void) applicationDidEnterBackground {
+    [self stopAnimation];
 }
 
 @end

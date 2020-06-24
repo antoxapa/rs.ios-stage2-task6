@@ -21,16 +21,13 @@
     
 //    MainViewController *mainVC = [MainViewController new];
     StartViewController *startVC = [StartViewController new];
+    startVC.view.backgroundColor = UIColor.whiteColor;
     
     UINavigationController *mainNavController = [[UINavigationController alloc]initWithRootViewController:startVC];
     
     [mainNavController.navigationBar setHidden:YES];
 
-    
-    UITabBarController *mainTBC = [CustonTabBarController new];
-    
-  
-    mainNavController.viewControllers = @[mainTBC, startVC];
+    mainNavController.viewControllers = @[startVC];
     window.rootViewController = mainNavController;
 //    mainTBC.delegate = self;
 
@@ -38,13 +35,6 @@
     self.window = window;
     
 }
-
-
-
-
-
-
-
 - (void)sceneDidDisconnect:(UIScene *)scene {
     // Called as the scene is being released by the system.
     // This occurs shortly after the scene enters the background, or when its session is discarded.

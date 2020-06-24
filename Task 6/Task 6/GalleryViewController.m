@@ -10,6 +10,9 @@
 #import "GalleryCVC.h"
 #import <Photos/Photos.h>
 #import "DetailViewController.h"
+#import "MediaObject.h"
+#import "MediaManager.h"
+#import "ModalViewController.h"
 
 @interface GalleryViewController ()
 
@@ -19,9 +22,14 @@
 @property (nonatomic, strong) NSMutableArray *creationDateArray;
 @property (nonatomic, strong) NSMutableArray *modificationDateArray;
 @property (nonatomic, strong) NSMutableArray *typeArray;
+@property (nonatomic, strong) NSMutableArray *nameArray;
+
+@property (nonatomic, strong) MediaManager *mediaManager;
+@property (nonatomic, strong) MediaObject *mediaObject;
 
 @property (nonatomic , strong) PHFetchResult *assetsFetchResults;
-@property (nonatomic , strong) PHCachingImageManager *imageManager;
+@property (nonatomic , strong) PHImageManager *imageManager;
+
 
 @end
 
@@ -29,11 +37,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [PHPhotoLibrary.sharedPhotoLibrary registerChangeObserver:self];
     self.imagesArray = [NSMutableArray array];
     self.creationDateArray = [NSMutableArray array];
     self.modificationDateArray = [NSMutableArray array];
     self.typeArray = [NSMutableArray array];
+    self.nameArray = [NSMutableArray array];
     
+    self.imageManager = [PHImageManager defaultManager];
+    self.mediaManager = [[MediaManager alloc]init];
+    self.mediaObject = [[MediaObject alloc]init];
+       
+
     UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
     flowLayout.itemSize = CGSizeMake(50, 50);
     [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
@@ -49,48 +65,42 @@
     [self.view addSubview:self.collectionView];
     self.collectionView.backgroundColor = UIColor.whiteColor;
     self.numberOfItems = 3;
+    [self.collectionView setContentInset:UIEdgeInsetsMake(5, 5, 5, 5)];
+    self.collectionView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [NSLayoutConstraint activateConstraints:@[
+           [self.collectionView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+           [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+           [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+           [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+       ]];
+    
     
     // Fetch all assets, sorted by date created.
     PHFetchOptions *options = [[PHFetchOptions alloc] init];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
     self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-    self.imageManager = [[PHCachingImageManager alloc] init];
-    
-    [self.collectionView setContentInset:UIEdgeInsetsMake(5, 5, 5, 5)];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     GalleryCVC *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
     PHAsset *asset = self.assetsFetchResults[indexPath.item];
-    if (asset.sourceType == PHAssetMediaTypeImage) {
-        NSLog(@"1");
-    } else if (asset.sourceType == PHAssetMediaTypeImage) {
-        NSLog(@"2");
-    } else if (asset.sourceType == PHAssetMediaTypeVideo) {
-        NSLog(@"3");
-    }
 
-//    NSDateFormatter* df = [[NSDateFormatter alloc]init];
-//    [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
-//    NSString *creationDate = [df stringFromDate:asset.creationDate];
-//    NSString *modification = [df stringFromDate:asset.creationDate];
-//
-//    [self.creationDateArray addObject:creationDate];
-//    [self.modificationDateArray addObject:modification];
-////    [self.typeArray addObject:asset];
-//
-//        [self.imageManager requestImageDataAndOrientationForAsset:asset
-//                                                          options:nil
-//                                                    resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
-//
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                UIImage *image = [UIImage imageWithData:imageData];
-//                [self.imagesArray addObject:image];
-//                cell.imageView.image = image;
-//            });
-//        }];
-    
+
+        [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
+               
+             [self.imagesArray addObject:object.objectImage];
+            [self.nameArray addObject:object.objectName];
+                    [self.creationDateArray addObject:object.creationDate];
+                    [self.modificationDateArray addObject:object.modificationDate];
+                    [self.typeArray addObject:object.objectType];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        cell.imageView.image = object.objectImage;
+                    });
+           }];
+
+   
     return cell;
 }
 
@@ -109,47 +119,50 @@
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    CGFloat width = (self.collectionView.frame.size.width - 10 - ((self.numberOfItems-1) * 5))  / (self.numberOfItems);
+    CGFloat width = (self.view.frame.size.width - 10 - (self.numberOfItems-1) * 5) / self.numberOfItems;
     return CGSizeMake(width, width);
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     
-    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
-    {
+    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) {
         self.numberOfItems = 5;
     }
-    
-    if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation))
-    {
+    if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
         self.numberOfItems = 3;
     }
     
     [self.collectionView.collectionViewLayout invalidateLayout];
 }
 
-- (void)photoLibraryDidChange:(PHChange *)changeInstance {
-    
-    PHFetchOptions *options = [[PHFetchOptions alloc]init];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
-    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-    [self.imagesArray removeAllObjects];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.collectionView reloadData];
-    });
-}
-
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    DetailViewController *detailVC = [[DetailViewController alloc]initWithInfo:self.imagesArray[indexPath.row] creationDate:self.creationDateArray[indexPath.row] modificationDate:self.modificationDateArray[indexPath.row] type:@"Image"];
-    
-    detailVC.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:detailVC animated:YES];
-    
+   
+        ModalViewController *notificationVC = [[ModalViewController alloc] init];
+        notificationVC.image = self.imagesArray[indexPath.row];
+        notificationVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+        notificationVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        [self presentViewController:notificationVC animated:YES completion:nil];
 }
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
+}
+
+- (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    
+    PHFetchOptions *options = [[PHFetchOptions alloc]init];
+    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
+    
+    [self.imagesArray removeAllObjects];
+    [self.creationDateArray removeAllObjects];
+    [self.typeArray removeAllObjects];
+    [self.modificationDateArray removeAllObjects];
+    [self.nameArray removeAllObjects];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.collectionView reloadData];
+    });
 }
 
 

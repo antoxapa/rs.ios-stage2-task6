@@ -38,8 +38,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    
     self.view.backgroundColor = UIColor.appWhiteColor;
 }
 
@@ -83,8 +81,8 @@
     
     NSMutableAttributedString *dataFieldText = [[NSMutableAttributedString alloc] initWithAttributedString: self.creationDateField.attributedText];
     [dataFieldText addAttribute:NSForegroundColorAttributeName
-                 value:[UIColor appGrayColor]
-                 range:NSMakeRange(0, 13)];
+                          value:[UIColor appGrayColor]
+                          range:NSMakeRange(0, 13)];
     [self.creationDateField setAttributedText: dataFieldText];
     
     self.modificationDateField = [[UILabel alloc]init];
@@ -93,19 +91,19 @@
     
     NSMutableAttributedString *modificationFieldText = [[NSMutableAttributedString alloc] initWithAttributedString: self.modificationDateField.attributedText];
     [modificationFieldText addAttribute:NSForegroundColorAttributeName
-                 value:[UIColor appGrayColor]
-                 range:NSMakeRange(0, 18)];
+                                  value:[UIColor appGrayColor]
+                                  range:NSMakeRange(0, 18)];
     [self.modificationDateField setAttributedText: modificationFieldText];
     
     self.typeField = [[UILabel alloc]init];
     self.typeField.text = [NSString stringWithFormat:@"Type: %@", self.type];
     self.typeField.textColor = [UIColor appBlackColor];
-
+    
     NSMutableAttributedString *typeFieldText = [[NSMutableAttributedString alloc] initWithAttributedString: self.typeField.attributedText];
-       [typeFieldText addAttribute:NSForegroundColorAttributeName
-                    value:[UIColor appGrayColor]
-                    range:NSMakeRange(0, 5)];
-       [self.typeField setAttributedText: typeFieldText];
+    [typeFieldText addAttribute:NSForegroundColorAttributeName
+                          value:[UIColor appGrayColor]
+                          range:NSMakeRange(0, 5)];
+    [self.typeField setAttributedText: typeFieldText];
     
     
     self.textStackView = [[UIStackView alloc]init];
@@ -161,11 +159,10 @@
         [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.scrollContentView.bottomAnchor constant:-15],
         
         [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor constant:  - 30],
-        //        [self.mainStackView.heightAnchor constraintEqualToAnchor:self.scrollContentView.heightAnchor],
+        
     ]];
-    
-    
 }
+
 
 - (UIImage *)resizeImage:(UIImage *)image newWidth:(CGFloat)newWidth {
     
@@ -179,11 +176,34 @@
     return newImage;
 }
 
-
+- (void)backPressed {
+    [self dismissViewControllerAnimated:YES completion:nil];
+};
 
 
 - (void)share {
     
+    NSMutableArray *activityItems= [NSMutableArray arrayWithObjects:self.image, nil];
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+    activityViewController.excludedActivityTypes = @[UIActivityTypePostToWeibo, UIActivityTypePrint, UIActivityTypeCopyToPasteboard, UIActivityTypeAssignToContact, UIActivityTypeSaveToCameraRoll, UIActivityTypeAddToReadingList, UIActivityTypePostToFlickr, UIActivityTypePostToVimeo, UIActivityTypePostToTencentWeibo, UIActivityTypeAirDrop];
+    
+    if (@available (iOS 13,*)) {
+        if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+            [self presentViewController:activityViewController animated:YES completion:nil];
+        } else {
+            activityViewController.modalPresentationStyle = UIModalPresentationPopover;
+            activityViewController.popoverPresentationController.sourceView = self.shareButton;
+            [self presentViewController:activityViewController animated:YES completion:nil];
+        }
+    } else {
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+            [self presentViewController:activityViewController animated:YES completion:nil];
+        } else {
+            activityViewController.modalPresentationStyle = UIModalPresentationPopover;
+            activityViewController.popoverPresentationController.sourceView = self.shareButton;
+            [self presentViewController:activityViewController animated:YES completion:nil];
+        }
+    }
 }
 
 - (BOOL)prefersStatusBarHidden {

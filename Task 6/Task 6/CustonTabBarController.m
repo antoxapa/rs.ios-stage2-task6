@@ -30,7 +30,8 @@
     self.tabBar.tintColor = [UIColor appBlackColor];
 
 #pragma mark: - Setup TabBarItems
-    InfoViewController *infoVC = [[InfoViewController alloc]initWithNibName:@"InfoViewController" bundle:nil];
+    InfoViewController *infoVC = [[InfoViewController alloc]init];
+    infoVC.view.backgroundColor = [UIColor appWhiteColor];
     infoVC.title = @"Info";
     UITabBarItem *infoTab = [[UITabBarItem alloc]initWithTitle:nil image:[UIImage imageNamed:@"info_unselected"] selectedImage:[UIImage imageNamed:@"info_selected"]];
     infoVC.tabBarItem = infoTab;
@@ -39,15 +40,17 @@
     self.firstVC.navigationBar.barTintColor = [UIColor appYellowColor];
     
     
-    GalleryViewController *galleryVC = [[GalleryViewController alloc]initWithNibName:@"GalleryViewController" bundle:nil];
+    GalleryViewController *galleryVC = [[GalleryViewController alloc]init];
     galleryVC.title = @"Gallery";
+    galleryVC.view.backgroundColor = [UIColor appWhiteColor];
     UITabBarItem *galleryTab = [[UITabBarItem alloc]initWithTitle:nil image:[UIImage imageNamed:@"gallery_unselected"] selectedImage:[UIImage imageNamed:@"gallery_selected"]];
     galleryVC.tabBarItem = galleryTab;
     self.secondVC = [[CustomNavController alloc]initWithRootViewController:galleryVC];
     self.secondVC.navigationBar.barTintColor = [UIColor appYellowColor];
     
     
-    HomeViewController *homeVC = [[HomeViewController alloc]initWithNibName:@"HomeViewController" bundle:nil];
+    HomeViewController *homeVC = [[HomeViewController alloc]init];
+    homeVC.view.backgroundColor = [UIColor appWhiteColor];
     homeVC.title = @"RSSchool Task 6";
     UITabBarItem *homeTab = [[UITabBarItem alloc]initWithTitle:nil image:[UIImage imageNamed:@"home_unselected"] selectedImage:[UIImage imageNamed:@"home_selected"]];;
     homeVC.tabBarItem = homeTab;

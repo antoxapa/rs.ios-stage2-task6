@@ -7,11 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Photos/Photos.h>
+#import "MediaObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MediaManager : UIViewController
 
+- (void)downloadAsset:(PHAsset *)asset completion:(void (^)(MediaObject *object))completion;
 @end
 
 NS_ASSUME_NONNULL_END
