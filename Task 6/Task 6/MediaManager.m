@@ -49,10 +49,28 @@
         PHImageRequestOptions *options = [PHImageRequestOptions new];
         options.networkAccessAllowed = YES;
 
-        [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
-//            NSLog(@"image");
-        
-            UIImage *image = [UIImage imageWithData:imageData];
+        if (@available(iOS 13, *)) {
+            [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
+                //            NSLog(@"image");
+                
+                UIImage *image = [UIImage imageWithData:imageData];
+                NSString *objectName = [asset valueForKey:@"filename"];
+                NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
+                NSString *objectType = @"Image";
+                
+                NSDateFormatter* df = [[NSDateFormatter alloc]init];
+                [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
+                NSString *creationDate = [df stringFromDate:asset.creationDate];
+                NSString *modificationDate = [df stringFromDate:asset.creationDate];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                
+                MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
+                completion(imageObject);
+            }];
+        } else {
+            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(100, 100) contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+            
+                UIImage *image = result;
             NSString *objectName = [asset valueForKey:@"filename"];
             NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
             NSString *objectType = @"Image";
@@ -65,32 +83,51 @@
             
             MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
             completion(imageObject);
-        }];
+                   }];
+        }
     }
     else if (asset.mediaType == PHAssetMediaTypeVideo)
     {
-        PHVideoRequestOptions *videoOptions = [PHVideoRequestOptions new];
+//        PHVideoRequestOptions *videoOptions = [PHVideoRequestOptions new];
 //        options.networkAccessAllowed = YES;
         
         PHImageRequestOptions *options = [PHImageRequestOptions new];
         options.networkAccessAllowed = YES;
         
-        [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
-        
-            UIImage *image = [UIImage imageWithData:imageData];
-            NSString *objectName = [asset valueForKey:@"filename"];
-            NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
-            NSString *objectType = @"Video";
-            
-            NSDateFormatter* df = [[NSDateFormatter alloc]init];
-            [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
-            NSString *creationDate = [df stringFromDate:asset.creationDate];
-            NSString *modificationDate = [df stringFromDate:asset.creationDate];
-            NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
-            
-            MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
-            completion(imageObject);
-        }];
+        if (@available(iOS 13, *)) {
+            [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
+                
+                UIImage *image = [UIImage imageWithData:imageData];
+                NSString *objectName = [asset valueForKey:@"filename"];
+                NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
+                NSString *objectType = @"Video";
+                
+                NSDateFormatter* df = [[NSDateFormatter alloc]init];
+                [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
+                NSString *creationDate = [df stringFromDate:asset.creationDate];
+                NSString *modificationDate = [df stringFromDate:asset.creationDate];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                
+                MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
+                completion(imageObject);
+            }];
+        } else {
+            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(100, 100) contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+                UIImage *image = result;
+                NSString *objectName = [asset valueForKey:@"filename"];
+                NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
+                NSString *objectType = @"Video";
+                
+                NSDateFormatter* df = [[NSDateFormatter alloc]init];
+                [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
+                NSString *creationDate = [df stringFromDate:asset.creationDate];
+                NSString *modificationDate = [df stringFromDate:asset.creationDate];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                
+                MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
+                completion(imageObject);
+            }];
+        }
         
         
 //        [[PHImageManager defaultManager]requestPlayerItemForVideo:asset options:videoOptions resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
@@ -133,43 +170,79 @@
         PHImageRequestOptions *options = [PHImageRequestOptions new];
         options.networkAccessAllowed = YES;
         
-        [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
-        
-            UIImage *image = [UIImage imageNamed:@"audio"];
-            NSString *objectName = [asset valueForKey:@"filename"];
-            NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
-            NSString *objectType = @"Audio";
-            
-            NSDateFormatter* df = [[NSDateFormatter alloc]init];
-            [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
-            NSString *creationDate = [df stringFromDate:asset.creationDate];
-            NSString *modificationDate = [df stringFromDate:asset.creationDate];
-            NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
-            
-            MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
-            completion(imageObject);
-        }];
+        if (@available(iOS 13, *)) {
+            [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
+                
+                UIImage *image = [UIImage imageNamed:@"audio"];
+                NSString *objectName = [asset valueForKey:@"filename"];
+                NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
+                NSString *objectType = @"Audio";
+                
+                NSDateFormatter* df = [[NSDateFormatter alloc]init];
+                [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
+                NSString *creationDate = [df stringFromDate:asset.creationDate];
+                NSString *modificationDate = [df stringFromDate:asset.creationDate];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                
+                MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
+                completion(imageObject);
+            }];
+        } else {
+            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(100, 100) contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+                UIImage *image = [UIImage imageNamed:@"audio"];
+                    NSString *objectName = [asset valueForKey:@"filename"];
+                    NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
+                    NSString *objectType = @"Audio";
+                    
+                    NSDateFormatter* df = [[NSDateFormatter alloc]init];
+                    [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
+                    NSString *creationDate = [df stringFromDate:asset.creationDate];
+                    NSString *modificationDate = [df stringFromDate:asset.creationDate];
+                    NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                    
+                    MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
+                    completion(imageObject);
+                }];
+        }
     } else if(asset.mediaType == PHAssetMediaTypeUnknown) {
         
         PHImageRequestOptions *options = [PHImageRequestOptions new];
         options.networkAccessAllowed = YES;
         
-        [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
-        
-            UIImage *image = [UIImage imageNamed:@"other"];
-            NSString *objectName = [asset valueForKey:@"filename"];
-            NSString *objectDuration = @"";
-            NSString *objectType = @"Other";
-            
-            NSDateFormatter* df = [[NSDateFormatter alloc]init];
-            [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
-            NSString *creationDate = [df stringFromDate:asset.creationDate];
-            NSString *modificationDate = [df stringFromDate:asset.creationDate];
-            NSString *objectSize = @"";
-            
-            MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
-            completion(imageObject);
-        }];
+        if (@available(iOS 13, *)) {
+            [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
+                
+                UIImage *image = [UIImage imageNamed:@"other"];
+                NSString *objectName = [asset valueForKey:@"filename"];
+                NSString *objectDuration = @"";
+                NSString *objectType = @"Other";
+                
+                NSDateFormatter* df = [[NSDateFormatter alloc]init];
+                [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
+                NSString *creationDate = [df stringFromDate:asset.creationDate];
+                NSString *modificationDate = [df stringFromDate:asset.creationDate];
+                NSString *objectSize = @"";
+                
+                MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
+                completion(imageObject);
+            }];
+        } else {
+            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(100, 100) contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+            UIImage *image = [UIImage imageNamed:@"audio"];
+                NSString *objectName = [asset valueForKey:@"filename"];
+                NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
+                NSString *objectType = @"Audio";
+                
+                NSDateFormatter* df = [[NSDateFormatter alloc]init];
+                [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
+                NSString *creationDate = [df stringFromDate:asset.creationDate];
+                NSString *modificationDate = [df stringFromDate:asset.creationDate];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                
+                MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
+                completion(imageObject);
+            }];
+        }
     }
 }
 

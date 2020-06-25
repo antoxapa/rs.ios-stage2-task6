@@ -13,6 +13,9 @@
 #import "MediaObject.h"
 #import "MediaManager.h"
 #import "ModalViewController.h"
+#import "AVKit/AVKit.h"
+#import "AVFoundation/AVFoundation.h"
+#import "UIColor+HexString.h"
 
 @interface GalleryViewController ()
 
@@ -48,8 +51,8 @@
     self.imageManager = [PHImageManager defaultManager];
     self.mediaManager = [[MediaManager alloc]init];
     self.mediaObject = [[MediaObject alloc]init];
-       
-
+    
+    
     UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
     flowLayout.itemSize = CGSizeMake(50, 50);
     [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
@@ -69,11 +72,11 @@
     self.collectionView.translatesAutoresizingMaskIntoConstraints = NO;
     
     [NSLayoutConstraint activateConstraints:@[
-           [self.collectionView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
-           [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-           [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-           [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-       ]];
+        [self.collectionView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+    ]];
     
     
     // Fetch all assets, sorted by date created.
@@ -86,22 +89,39 @@
     GalleryCVC *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
     PHAsset *asset = self.assetsFetchResults[indexPath.item];
-
-
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
-               
-             [self.imagesArray addObject:object.objectImage];
-            [self.nameArray addObject:object.objectName];
-                    [self.creationDateArray addObject:object.creationDate];
-                    [self.modificationDateArray addObject:object.modificationDate];
-                    [self.typeArray addObject:object.objectType];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        cell.imageView.image = object.objectImage;
-                    });
-           }];
-
-   
+            
+//            if (asset.mediaType == PHAssetMediaTypeVideo) {
+//                [cell setDuration:[self formatTimeFromSeconds:object.objectDuration.integerValue]];
+//            }
+              
+              [self.imagesArray addObject:object.objectImage];
+              [self.nameArray addObject:object.objectName];
+              [self.creationDateArray addObject:object.creationDate];
+              [self.modificationDateArray addObject:object.modificationDate];
+              [self.typeArray addObject:object.objectType];
+              dispatch_async(dispatch_get_main_queue(), ^{
+                  cell.imageView.image = object.objectImage;
+              });
+          }];
+    });
     return cell;
+}
+- (NSString *)formatTimeFromSeconds:(NSInteger)numberOfSeconds {
+    
+    NSInteger seconds = numberOfSeconds % 60;
+    NSInteger minutes = (numberOfSeconds / 60) % 60;
+    NSInteger hours = numberOfSeconds / 3600;
+    
+    if (hours) {
+        return [NSString stringWithFormat:@"%2ld:%02ld:%02ld", (long)hours, (long)minutes, seconds];
+    }
+    if (minutes) {
+        return [NSString stringWithFormat:@"%2ld:%02ld", (long)minutes, (long)seconds];
+    }
+    return [NSString stringWithFormat:@"0:%02ld", (long)seconds];
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
@@ -136,12 +156,28 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-   
-        ModalViewController *notificationVC = [[ModalViewController alloc] init];
-        notificationVC.image = self.imagesArray[indexPath.row];
-        notificationVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-        notificationVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-        [self presentViewController:notificationVC animated:YES completion:nil];
+    
+    ModalViewController *notificationVC = [[ModalViewController alloc] init];
+    notificationVC.image = self.imagesArray[indexPath.row];
+    notificationVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    notificationVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    
+    PHAsset *asset = self.assetsFetchResults[indexPath.item];
+    
+    if (asset.mediaType == PHAssetMediaTypeVideo) {
+        PHVideoRequestOptions *videoOptions = [PHVideoRequestOptions new];
+          [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:videoOptions resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
+              AVPlayer *player = [[AVPlayer alloc]initWithPlayerItem:playerItem];
+              AVPlayerViewController *playerViewController = [AVPlayerViewController new];
+              playerViewController.player = player;
+              [self presentViewController:playerViewController animated:YES completion:^{
+                  [playerViewController.player play];
+              }];
+          }];
+    } else {
+            [self presentViewController:notificationVC animated:YES completion:nil];
+    }
+
 }
 
 - (BOOL)prefersStatusBarHidden {

@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Photos/Photos.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UILabel *creationDateField;
 @property (nonatomic, strong) UILabel *modificationDateField;
 @property (nonatomic, strong) UILabel *typeField;
+@property (nonatomic, strong) PHAsset *asset;
 
 - (instancetype) initWithInfo:(UIImage *)image creationDate:(NSString *)creationDate modificationDate:(NSString *)modificationDate type:(NSString *)type;
 

@@ -85,11 +85,12 @@
 		06465438249E27D3004F27E7 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				064EB87F249F521900673FF4 /* CustomNavController */,
-				06465465249E7D0A004F27E7 /* CustomTabBarController */,
 				06465439249E27DF004F27E7 /* StartVC - FirstScreen */,
 				06465449249E2DE2004F27E7 /* MainVC - SecondScreen */,
 				064EB89D24A252DC00673FF4 /* DetailVC - FifthScreen */,
+				064EB8A324A4953B00673FF4 /* ModalVC - ExtraScreen */,
+				064EB87F249F521900673FF4 /* CustomNavController */,
+				06465465249E7D0A004F27E7 /* CustomTabBarController */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -228,8 +229,6 @@
 			children = (
 				064EB89424A0C59600673FF4 /* MediaManager.h */,
 				064EB89524A0C59600673FF4 /* MediaManager.m */,
-				064EB8A024A25D5300673FF4 /* ModalViewController.h */,
-				064EB8A124A25D5300673FF4 /* ModalViewController.m */,
 			);
 			name = MediaManager;
 			sourceTree = "<group>";
@@ -241,6 +240,15 @@
 				064EB89B24A0E75B00673FF4 /* MediaObject.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		064EB8A324A4953B00673FF4 /* ModalVC - ExtraScreen */ = {
+			isa = PBXGroup;
+			children = (
+				064EB8A024A25D5300673FF4 /* ModalViewController.h */,
+				064EB8A124A25D5300673FF4 /* ModalViewController.m */,
+			);
+			name = "ModalVC - ExtraScreen";
 			sourceTree = "<group>";
 		};
 		06F260C7249CD6D6006BBCA2 = {
@@ -433,7 +441,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -485,7 +493,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

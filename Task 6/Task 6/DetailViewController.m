@@ -9,6 +9,12 @@
 #import "DetailViewController.h"
 #import "UIColor+HexString.h"
 
+#import "MediaManager.h"
+#import "MediaObject.h"
+#import "AVKit/AVKit.h"
+#import "AVFoundation/AVFoundation.h"
+
+
 @interface DetailViewController ()
 
 @property (nonatomic, strong) UIStackView *textStackView;
@@ -20,6 +26,10 @@
 @property (nonatomic, strong) NSString *type;
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *scrollContentView;
+
+
+@property(nonatomic , strong) MediaManager *mediaManager;
+@property (nonatomic, strong) UIButton *playVideoButton;
 
 @end
 
@@ -39,11 +49,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.appWhiteColor;
+     [self setupViews];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:YES];
+   
     
+}
+
+- (void)setupViews {
     self.scrollView = [[UIScrollView alloc] init];
     self.scrollView.translatesAutoresizingMaskIntoConstraints = false;
     [self.view addSubview:self.scrollView];
@@ -161,6 +176,32 @@
         [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor constant:  - 30],
         
     ]];
+    
+    if (self.asset.mediaType == PHAssetMediaTypeVideo) {
+         
+             [self.detailImageView setUserInteractionEnabled:YES];
+             
+             self.playVideoButton = [UIButton buttonWithType:UIButtonTypeCustom];
+             [self.playVideoButton setImage:[UIImage imageNamed:@"playVideo"] forState:UIControlStateNormal];
+             self.playVideoButton.backgroundColor = [UIColor appYellowColor];
+             self.playVideoButton.alpha = 0.8;
+
+             [self.playVideoButton addTarget:self action:@selector(showVideo) forControlEvents:UIControlEventTouchUpInside];
+
+             self.playVideoButton.translatesAutoresizingMaskIntoConstraints = NO;
+             self.playVideoButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+             [self.detailImageView addSubview:self.playVideoButton];
+             
+            self.playVideoButton.layer.cornerRadius = 35;
+            self.playVideoButton.clipsToBounds = YES;
+             
+             [NSLayoutConstraint activateConstraints:@[
+                 [self.playVideoButton.centerXAnchor constraintEqualToAnchor:self.detailImageView.centerXAnchor],
+                 [self.playVideoButton.centerYAnchor constraintEqualToAnchor:self.detailImageView.centerYAnchor],
+                 [self.playVideoButton.heightAnchor constraintEqualToConstant:70],
+                 [self.playVideoButton.widthAnchor constraintEqualToConstant:70],
+             ]];
+     }
 }
 
 
@@ -204,6 +245,30 @@
             [self presentViewController:activityViewController animated:YES completion:nil];
         }
     }
+}
+
+- (void)showVideo {
+    
+    PHAsset *asset = self.asset;
+    if (asset.mediaType == PHAssetMediaTypeVideo) {
+        PHVideoRequestOptions *videoOptions = [PHVideoRequestOptions new];
+        [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:videoOptions resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
+            AVPlayer *player = [[AVPlayer alloc]initWithPlayerItem:playerItem];
+            
+//            AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer: player];
+//            layer.frame = self.view.layer.bounds;
+//            UIView *newView = [[UIView alloc] initWithFrame:self.detailImageView.bounds];
+//            [newView.layer addSublayer:layer];
+//            [self.detailImageView addSubview:newView];
+//            [player play];
+            AVPlayerViewController *playerViewController = [AVPlayerViewController new];
+            playerViewController.player = player;
+            [self presentViewController:playerViewController animated:YES completion:^{
+                [playerViewController.player play];
+            }];
+        }];
+    }
+    
 }
 
 - (BOOL)prefersStatusBarHidden {

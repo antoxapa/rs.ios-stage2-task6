@@ -175,13 +175,23 @@
     [self.mainStackView addArrangedSubview:self.buttonView];
     [self.view addSubview:self.mainStackView];
     self.mainStackView.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint activateConstraints:@[
-        [self.mainStackView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-        [self.mainStackView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
-        [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
-        [self.mainStackView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
-        [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.widthAnchor],
-    ]];
+    if (@available(iOS 11.0, *)) {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.mainStackView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+            [self.mainStackView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
+            [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
+            [self.mainStackView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
+            [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.widthAnchor],
+        ]];
+    } else {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.mainStackView.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:50],
+            [self.mainStackView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-50],
+            [self.mainStackView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor],
+        ]];
+    }
     
     //    Button layout
     [NSLayoutConstraint activateConstraints:@[

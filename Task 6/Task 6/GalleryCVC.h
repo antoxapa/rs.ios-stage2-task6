@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GalleryCVC : UICollectionViewCell
 @property (nonatomic, strong) UIImageView *imageView;
+- (void) setDuration:(NSString*)duration;
 @end
 
 NS_ASSUME_NONNULL_END

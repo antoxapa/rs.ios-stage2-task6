@@ -7,11 +7,13 @@
 //
 
 #import "InfoViewController.h"
-#import <Photos/Photos.h>
 #import "InfoTVC.h"
 #import "DetailViewController.h"
 #import "MediaManager.h"
 #import "MediaObject.h"
+#import "AVKit/AVKit.h"
+#import "AVFoundation/AVFoundation.h"
+#import <Photos/Photos.h>
 
 
 @interface InfoViewController ()
@@ -95,7 +97,7 @@
     //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     
 //    InfoTVC * cell = (InfoTVC *)[tableView cellForRowAtIndexPath:indexPath];
-    dispatch_async(dispatch_get_main_queue(), ^{
+//    dispatch_async(dispatch_get_main_queue(), ^{
         
         cell.mainImage.image = self.imagesArray[indexPath.row];
         cell.title.text = self.nameArray[indexPath.row];
@@ -115,7 +117,7 @@
             cell.subTitle.text = @"";
             cell.subtitleImage.image = [UIImage imageNamed:@"other"];
         }
-    });
+//    });
 //}];
 //    });
 
@@ -140,6 +142,7 @@ return cell;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     DetailViewController *detailVC = [[DetailViewController alloc]initWithInfo:self.imagesArray[indexPath.row] creationDate:self.creationDateArray[indexPath.row] modificationDate:self.modificationDateArray[indexPath.row] type:self.typeArray[indexPath.row]];
+    detailVC.asset = self.assetsFetchResults[indexPath.row];
     detailVC.hidesBottomBarWhenPushed = YES;
     [detailVC.navigationItem setTitle:self.nameArray[indexPath.row]];
     [self.navigationController pushViewController:detailVC animated:YES];
