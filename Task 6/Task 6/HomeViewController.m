@@ -13,7 +13,6 @@
 
 @interface HomeViewController ()
 
-
 @property (nonatomic, strong) UIStackView *mainStackView;
 @property (nonatomic, strong) UIStackView *figuresStackView;
 @property (nonatomic, strong) UIStackView *buttonsStackView;
@@ -39,10 +38,6 @@
 @property (nonatomic, strong) UIView *openStartScreenContainerView;
 @property (nonatomic, strong) UIView *openGitContainerView;
 
-@property (nonatomic, weak) NSLayoutConstraint *bottomAcnhoreConstraint;
-@property (nonatomic, weak) NSLayoutConstraint *topAnchoreConstraint;
-@property (nonatomic, weak) NSLayoutConstraint *centerYConstraintForTop;
-@property (nonatomic, weak) NSLayoutConstraint *centerYConstraintForBot;
 
 @end
 
@@ -51,9 +46,21 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
     
+    [self configureStackViews];
+    [self setupViews];
+}
+
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:YES];
+    
+    [self startAnimation];
+}
+
+- (void) configureStackViews {
     self.mainStackView = [[UIStackView alloc]init];
     self.mainStackView.axis = UILayoutConstraintAxisVertical;
     self.mainStackView.distribution = UIStackViewDistributionFillEqually;
@@ -69,31 +76,16 @@
     //    Configure ButtonsStackView
     self.buttonsStackView = [[UIStackView alloc]init];
     self.buttonsStackView.distribution = UIStackViewDistributionFillEqually;
-
-    if (self.view.frame.size.height>self.view.frame.size.width) {
-              self.buttonsStackView.axis = UILayoutConstraintAxisVertical;
-          }
-          else{
-              self.buttonsStackView.axis = UILayoutConstraintAxisHorizontal;
-       }
-       [self setupViews];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:YES];
-   
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:YES];
     
-    [self startAnimation];
+    if (self.view.frame.size.height>self.view.frame.size.width) {
+        self.buttonsStackView.axis = UILayoutConstraintAxisVertical;
+    }
+    else{
+        self.buttonsStackView.axis = UILayoutConstraintAxisHorizontal;
+    }
 }
 
 - (void) setupViews {
-    
-#pragma mark: - Configure StackViews
-
     
 #pragma mark: - InfoContentView Views
     
@@ -102,6 +94,10 @@
     
     //    Configure InfoViews
     self.appleImage = [[UIImageView alloc] init];
+    self.appleImage.image = [UIImage imageNamed:@"apple"];
+    [self.appleImage.heightAnchor constraintEqualToConstant:70].active = YES;
+    [self.appleImage.widthAnchor constraintEqualToConstant:70].active = YES;
+    self.appleImage.contentMode =UIViewContentModeScaleAspectFit;
     
     //    Configure deviceNameLabel
     self.deviceNameLabel = [[UILabel alloc]init];
@@ -133,9 +129,8 @@
     
     [self.mainStackView addArrangedSubview:self.infoContentView];
     
-    UIImage *newApleImage = [self resizeImage:[UIImage imageNamed:@"apple"] newWidth:80];
-    self.appleImage.image = newApleImage;
-    
+//    UIImage *newApleImage = [self resizeImage:[UIImage imageNamed:@"apple"] newWidth: 70];
+//    self.appleImage.image = newApleImage;
     
     self.figuresContentView = [[UIView alloc]init];
     self.figuresContentView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -151,7 +146,6 @@
     
     
 #pragma mark: - FiguresStackView Views
-    
     
     //  Configure CircleView
     self.circleView = [[UIView alloc] init];
@@ -170,7 +164,7 @@
     
     //  Configure TriangleView
     self.triangleView = [[TriangleView alloc]init];
-    self.triangleView.backgroundColor = UIColor.whiteColor;
+    self.triangleView.backgroundColor = UIColor.clearColor;
     self.triangleView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.triangleView.heightAnchor constraintEqualToConstant:70].active = true;
     [self.triangleView.widthAnchor constraintEqualToConstant:70].active = true;
@@ -246,7 +240,8 @@
     self.mainStackView.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self.view addSubview:self.mainStackView];
-
+    
+#pragma mark:- Setup Constraints
     if (@available(iOS 11.0, *)) {
         [NSLayoutConstraint activateConstraints:@[
             [self.mainStackView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
@@ -254,114 +249,78 @@
             [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
             [self.mainStackView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-30],
             [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.widthAnchor constant: -70],
-            
-            [self.deviceTypeLabel.centerYAnchor constraintEqualToAnchor:self.infoContentView.centerYAnchor],
-            [self.deviceTypeLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-            
-            [self.deviceNameLabel.leadingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor],
-            [self.deviceNameLabel.bottomAnchor constraintEqualToAnchor:self.deviceTypeLabel.topAnchor constant:-5],
-            [self.iOSVersionLabel.leadingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor],
-            [self.iOSVersionLabel.topAnchor constraintEqualToAnchor:self.deviceTypeLabel.bottomAnchor constant:5],
-            
-            [self.appleImage.centerYAnchor constraintEqualToAnchor:self.infoContentView.centerYAnchor],
-            [self.appleImage.trailingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor constant:-30],
-            [self.appleImage.widthAnchor constraintEqualToConstant:self.appleImage.image.size.width],
-            [self.appleImage.heightAnchor constraintEqualToConstant:self.appleImage.image.size.height],
-            
-            [self.topSeparatorView.heightAnchor constraintEqualToConstant: 2],
-            [self.topSeparatorView.topAnchor constraintEqualToAnchor: self.figuresContentView.topAnchor],
-            [self.topSeparatorView.centerXAnchor constraintEqualToAnchor: self.figuresContentView.centerXAnchor],
-            [self.topSeparatorView.widthAnchor constraintEqualToAnchor: self.mainStackView.widthAnchor],
-            
-            [self.bottomSeparatorView.heightAnchor constraintEqualToConstant: 2],
-            [self.bottomSeparatorView.topAnchor constraintEqualToAnchor: self.buttonsContentView.topAnchor],
-            [self.bottomSeparatorView.leadingAnchor constraintEqualToAnchor: self.buttonsContentView.leadingAnchor],
-            [self.bottomSeparatorView.trailingAnchor constraintEqualToAnchor: self.buttonsContentView.trailingAnchor],
-            [self.bottomSeparatorView.centerXAnchor constraintEqualToAnchor: self.buttonsContentView.centerXAnchor],
-            
-            [self.buttonsContentView.topAnchor constraintEqualToAnchor:self.buttonsStackView.topAnchor],
-            [self.buttonsContentView.leadingAnchor constraintEqualToAnchor:self.buttonsStackView.leadingAnchor],
-            [self.buttonsContentView.trailingAnchor constraintEqualToAnchor:self.buttonsStackView.trailingAnchor],
-            [self.buttonsContentView.bottomAnchor constraintEqualToAnchor:self.buttonsStackView.bottomAnchor],
-            
-            [self.openGitCVButton.heightAnchor constraintEqualToConstant:55],
-            [self.openGitCVButton.widthAnchor constraintEqualToAnchor: self.figuresStackView.widthAnchor],
-            [self.openGitCVButton.centerXAnchor constraintEqualToAnchor: self.openGitContainerView.centerXAnchor],
-            [self.openGitCVButton.centerYAnchor constraintEqualToAnchor: self.openGitContainerView.centerYAnchor],
-            
-            [self.openStartScreenButton.heightAnchor constraintEqualToConstant:55],
-            [self.openStartScreenButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
-            [self.openStartScreenButton.centerXAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerXAnchor],
-            [self.openStartScreenButton.centerYAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerYAnchor],
-            
         ]];
     } else {
         
         [NSLayoutConstraint activateConstraints:@[
             [self.mainStackView.topAnchor constraintEqualToAnchor:self.view.topAnchor constant: 50],
-                   [self.mainStackView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:40],
-                   [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-50],
-                   [self.mainStackView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-30],
-                   [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor constant: -70],
-                   
-                   [self.deviceTypeLabel.centerYAnchor constraintEqualToAnchor:self.infoContentView.centerYAnchor],
-                   [self.deviceTypeLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-                   
-                   [self.deviceNameLabel.leadingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor],
-                   [self.deviceNameLabel.bottomAnchor constraintEqualToAnchor:self.deviceTypeLabel.topAnchor constant:-5],
-                   [self.iOSVersionLabel.leadingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor],
-                   [self.iOSVersionLabel.topAnchor constraintEqualToAnchor:self.deviceTypeLabel.bottomAnchor constant:5],
-                   
-                   [self.appleImage.centerYAnchor constraintEqualToAnchor:self.infoContentView.centerYAnchor],
-                   [self.appleImage.trailingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor constant:-30],
-                   [self.appleImage.widthAnchor constraintEqualToConstant:self.appleImage.image.size.width],
-                   [self.appleImage.heightAnchor constraintEqualToConstant:self.appleImage.image.size.height],
-                   
-                   [self.topSeparatorView.heightAnchor constraintEqualToConstant: 2],
-                   [self.topSeparatorView.topAnchor constraintEqualToAnchor: self.figuresContentView.topAnchor],
-                   [self.topSeparatorView.centerXAnchor constraintEqualToAnchor: self.figuresContentView.centerXAnchor],
-                   [self.topSeparatorView.widthAnchor constraintEqualToAnchor: self.mainStackView.widthAnchor],
-                   
-                   [self.bottomSeparatorView.heightAnchor constraintEqualToConstant: 2],
-                   [self.bottomSeparatorView.topAnchor constraintEqualToAnchor: self.buttonsContentView.topAnchor],
-                   [self.bottomSeparatorView.leadingAnchor constraintEqualToAnchor: self.buttonsContentView.leadingAnchor],
-                   [self.bottomSeparatorView.trailingAnchor constraintEqualToAnchor: self.buttonsContentView.trailingAnchor],
-                   [self.bottomSeparatorView.centerXAnchor constraintEqualToAnchor: self.buttonsContentView.centerXAnchor],
-                   
-                   [self.buttonsContentView.topAnchor constraintEqualToAnchor:self.buttonsStackView.topAnchor],
-                   [self.buttonsContentView.leadingAnchor constraintEqualToAnchor:self.buttonsStackView.leadingAnchor],
-                   [self.buttonsContentView.trailingAnchor constraintEqualToAnchor:self.buttonsStackView.trailingAnchor],
-                   [self.buttonsContentView.bottomAnchor constraintEqualToAnchor:self.buttonsStackView.bottomAnchor],
-                   
-                   [self.openGitCVButton.heightAnchor constraintEqualToConstant:55],
-                   [self.openGitCVButton.widthAnchor constraintEqualToAnchor: self.figuresStackView.widthAnchor],
-                   [self.openGitCVButton.centerXAnchor constraintEqualToAnchor: self.openGitContainerView.centerXAnchor],
-                   [self.openGitCVButton.centerYAnchor constraintEqualToAnchor: self.openGitContainerView.centerYAnchor],
-                   
-                   [self.openStartScreenButton.heightAnchor constraintEqualToConstant:55],
-                   [self.openStartScreenButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
-                   [self.openStartScreenButton.centerXAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerXAnchor],
-                   [self.openStartScreenButton.centerYAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerYAnchor],
-                   
-               ]];
+            [self.mainStackView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:40],
+            [self.mainStackView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-50],
+            [self.mainStackView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-30],
+            [self.mainStackView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor constant: -70],
+        ]];
     }
     
-    //
-    //    self.bottomAcnhoreConstraint = [NSLayoutConstraint constraintWithItem:self.openGitCVButton attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.openGitContainerView attribute:NSLayoutAttributeBottom multiplier:1 constant:-15];
-    //
-    //    self.topAnchoreConstraint = [NSLayoutConstraint constraintWithItem:self.openStartScreenButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.openStartScreenContainerView attribute:NSLayoutAttributeTop multiplier:1 constant:15];
-    //
-    //    self.centerYConstraintForTop = [NSLayoutConstraint constraintWithItem:self.openGitCVButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.self.openGitContainerView attribute:NSLayoutAttributeCenterY multiplier:1 constant: 1];
-    //
-    //    self.centerYConstraintForBot = [NSLayoutConstraint constraintWithItem:self.openStartScreenButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.openStartScreenContainerView attribute:NSLayoutAttributeCenterY multiplier:1 constant: 1];
-    //
-    ////
-    //
-    ////    self.centerYConstraintForBot.active = false;
-    ////    self.centerYConstraintForTop.active = false;
-    ////    [self.openGitCVButton.bottomAnchor constraintEqualToAnchor: self.bottomAcnhoreConstraint].active = true;
-    ////    [self.openStartScreenButton.topAnchor constraintEqualToAnchor: self.openStartScreenContainerView.topAnchor constant:+15],
-    //
+    [NSLayoutConstraint activateConstraints:@[
+        [self.deviceTypeLabel.centerYAnchor constraintEqualToAnchor:self.infoContentView.centerYAnchor],
+        [self.deviceTypeLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        
+        [self.deviceNameLabel.leadingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor],
+        [self.deviceNameLabel.bottomAnchor constraintEqualToAnchor:self.deviceTypeLabel.topAnchor constant:-5],
+        [self.iOSVersionLabel.leadingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor],
+        [self.iOSVersionLabel.topAnchor constraintEqualToAnchor:self.deviceTypeLabel.bottomAnchor constant:5],
+        
+        [self.appleImage.centerYAnchor constraintEqualToAnchor:self.infoContentView.centerYAnchor],
+        [self.appleImage.trailingAnchor constraintEqualToAnchor:self.deviceTypeLabel.leadingAnchor constant:-30],
+        [self.appleImage.widthAnchor constraintEqualToConstant:self.appleImage.image.size.width],
+        [self.appleImage.heightAnchor constraintEqualToConstant:self.appleImage.image.size.height],
+        
+        [self.topSeparatorView.heightAnchor constraintEqualToConstant: 2],
+        [self.topSeparatorView.topAnchor constraintEqualToAnchor: self.figuresContentView.topAnchor],
+        [self.topSeparatorView.centerXAnchor constraintEqualToAnchor: self.figuresContentView.centerXAnchor],
+        [self.topSeparatorView.widthAnchor constraintEqualToAnchor: self.mainStackView.widthAnchor],
+        
+        [self.bottomSeparatorView.heightAnchor constraintEqualToConstant: 2],
+        [self.bottomSeparatorView.topAnchor constraintEqualToAnchor: self.buttonsContentView.topAnchor],
+        [self.bottomSeparatorView.leadingAnchor constraintEqualToAnchor: self.buttonsContentView.leadingAnchor],
+        [self.bottomSeparatorView.trailingAnchor constraintEqualToAnchor: self.buttonsContentView.trailingAnchor],
+        [self.bottomSeparatorView.centerXAnchor constraintEqualToAnchor: self.buttonsContentView.centerXAnchor],
+        
+        [self.buttonsContentView.topAnchor constraintEqualToAnchor:self.buttonsStackView.topAnchor],
+        [self.buttonsContentView.leadingAnchor constraintEqualToAnchor:self.buttonsStackView.leadingAnchor],
+        [self.buttonsContentView.trailingAnchor constraintEqualToAnchor:self.buttonsStackView.trailingAnchor],
+        [self.buttonsContentView.bottomAnchor constraintEqualToAnchor:self.buttonsStackView.bottomAnchor],
+        
+        [self.openStartScreenButton.heightAnchor constraintEqualToConstant:55],
+        [self.openStartScreenButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
+        [self.openGitCVButton.heightAnchor constraintEqualToConstant:55],
+        [self.openGitCVButton.widthAnchor constraintEqualToAnchor: self.figuresStackView.widthAnchor],
+    ]];
+    
+    
+    if (self.view.frame.size.height>self.view.frame.size.width) {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.openStartScreenButton.heightAnchor constraintEqualToConstant:55],
+            [self.openStartScreenButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.heightAnchor constraintEqualToConstant:55],
+            [self.openGitCVButton.widthAnchor constraintEqualToAnchor: self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.centerXAnchor constraintEqualToAnchor: self.openGitContainerView.centerXAnchor],
+            [self.openGitCVButton.bottomAnchor constraintEqualToAnchor: self.openGitContainerView.bottomAnchor constant:-15],
+            [self.openStartScreenButton.centerXAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerXAnchor],
+            [self.openStartScreenButton.topAnchor constraintEqualToAnchor: self.openStartScreenContainerView.topAnchor constant:15],
+        ]];
+    } else{
+        [NSLayoutConstraint activateConstraints:@[
+            [self.openStartScreenButton.heightAnchor constraintEqualToConstant:55],
+            [self.openStartScreenButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.heightAnchor constraintEqualToConstant:55],
+            [self.openGitCVButton.widthAnchor constraintEqualToAnchor: self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.trailingAnchor constraintEqualToAnchor: self.openGitContainerView.trailingAnchor constant: - self.view.frame.size.width /65],
+            [self.openGitCVButton.centerYAnchor constraintEqualToAnchor: self.openGitContainerView.centerYAnchor],
+            [self.openStartScreenButton.leadingAnchor constraintEqualToAnchor: self.openStartScreenContainerView.leadingAnchor constant:self.view.frame.size.width /65],
+            [self.openStartScreenButton.centerYAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerYAnchor],
+        ]];
+    }
 }
 
 - (void)startAnimation {
@@ -398,7 +357,6 @@
 }
 
 - (void) stopAnimation {
-    NSLog(@"Animation removed");
     [self.circleView.layer removeAllAnimations];
     [self.squareView.layer removeAllAnimations];
     [self.triangleView.layer removeAllAnimations];
@@ -419,19 +377,48 @@
     [self startAnimation];
 }
 
-- (void) applicationDidEnterBackground {
-    [self stopAnimation];
-}
-
+//- (void) applicationDidEnterBackground {
+////    [self stopAnimation];
+//}
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     
     if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) {
         self.buttonsStackView.axis = UILayoutConstraintAxisHorizontal;
+        [self.openGitCVButton removeFromSuperview];
+        [self.openStartScreenButton removeFromSuperview];
+        [self.openGitContainerView addSubview:self.openGitCVButton];
+        [self.openStartScreenContainerView addSubview:self.openStartScreenButton];
+        
+        [NSLayoutConstraint activateConstraints:@[
+            [self.openStartScreenButton.heightAnchor constraintEqualToConstant:55],
+            [self.openStartScreenButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.heightAnchor constraintEqualToConstant:55],
+            [self.openGitCVButton.widthAnchor constraintEqualToAnchor: self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.trailingAnchor constraintEqualToAnchor: self.openGitContainerView.trailingAnchor constant: - self.view.frame.size.width /65],
+            [self.openGitCVButton.centerYAnchor constraintEqualToAnchor: self.openGitContainerView.centerYAnchor],
+            [self.openStartScreenButton.leadingAnchor constraintEqualToAnchor: self.openStartScreenContainerView.leadingAnchor constant:self.view.frame.size.width /65],
+            [self.openStartScreenButton.centerYAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerYAnchor],
+        ]];
     }
     
     if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
         self.buttonsStackView.axis = UILayoutConstraintAxisVertical;
+        [self.openGitCVButton removeFromSuperview];
+        [self.openStartScreenButton removeFromSuperview];
+        [self.openGitContainerView addSubview:self.openGitCVButton];
+        [self.openStartScreenContainerView addSubview:self.openStartScreenButton];
+        
+        [NSLayoutConstraint activateConstraints:@[
+            [self.openStartScreenButton.heightAnchor constraintEqualToConstant:55],
+            [self.openStartScreenButton.widthAnchor constraintEqualToAnchor:self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.heightAnchor constraintEqualToConstant:55],
+            [self.openGitCVButton.widthAnchor constraintEqualToAnchor: self.figuresStackView.widthAnchor],
+            [self.openGitCVButton.centerXAnchor constraintEqualToAnchor: self.openGitContainerView.centerXAnchor],
+            [self.openGitCVButton.bottomAnchor constraintEqualToAnchor: self.openGitContainerView.bottomAnchor constant:-15],
+            [self.openStartScreenButton.centerXAnchor constraintEqualToAnchor: self.openStartScreenContainerView.centerXAnchor],
+            [self.openStartScreenButton.topAnchor constraintEqualToAnchor: self.openStartScreenContainerView.topAnchor constant:15],
+        ]];
     }
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     

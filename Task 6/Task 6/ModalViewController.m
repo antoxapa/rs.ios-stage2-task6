@@ -13,42 +13,59 @@
 @property (weak, nonatomic) UILabel *notificationTitleLabel;
 @property (strong, nonatomic) UIButton *dismissButton;
 @property (strong, nonatomic) UIImageView *imageView;
-
 @end
 
 @implementation ModalViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self setupView];
+}
 
+-(void)setupView {
     self.imageView = [[UIImageView alloc]init];
     self.dismissButton = [[UIButton alloc]init];
     self.dismissButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:self.dismissButton];
+    
     self.view.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.60];
     self.contentView.layer.cornerRadius = 3.0;
     
     self.imageView.image = self.image;
     [self.view addSubview:self.imageView];
+    [self.view addSubview:self.dismissButton];
     self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
     UIImage *resizedImage = [self resizeImage:self.image newWidth:self.view.frame.size.width];
     self.imageView.image = resizedImage;
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
     
-    [NSLayoutConstraint activateConstraints:@[
-        [self.imageView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-        [self.imageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor],
-        [self.imageView.heightAnchor constraintLessThanOrEqualToAnchor:self.view.heightAnchor constant:-130],
-        [self.imageView.widthAnchor constraintLessThanOrEqualToAnchor:self.view.widthAnchor],
-        
-        [self.dismissButton.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:10],
-        [self.dismissButton.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-10],
-        [self.dismissButton.widthAnchor constraintEqualToConstant:50],
-        [self.dismissButton.heightAnchor constraintEqualToConstant:50],
-    ]];
+    if (@available(iOS 11.0, *)) {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.imageView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+            [self.imageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor],
+            [self.imageView.heightAnchor constraintLessThanOrEqualToAnchor:self.view.heightAnchor],
+            [self.imageView.widthAnchor constraintLessThanOrEqualToAnchor:self.view.widthAnchor],
+            
+            
+            [self.dismissButton.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:10],
+            [self.dismissButton.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-10],
+            [self.dismissButton.widthAnchor constraintEqualToConstant:50],
+            [self.dismissButton.heightAnchor constraintEqualToConstant:50],
+        ]];
+    } else {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.imageView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+            [self.imageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor],
+            [self.imageView.heightAnchor constraintLessThanOrEqualToAnchor:self.view.heightAnchor],
+            [self.imageView.widthAnchor constraintLessThanOrEqualToAnchor:self.view.widthAnchor],
+            
+            
+            [self.dismissButton.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:10],
+            [self.dismissButton.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-10],
+            [self.dismissButton.widthAnchor constraintEqualToConstant:50],
+            [self.dismissButton.heightAnchor constraintEqualToConstant:50],
+        ]];
+    }
     
-//    self.dismissButton.imageView.image = [UIImage imageNamed:@"close"];
-
     self.dismissButton.layer.cornerRadius = 25;
     [self.dismissButton setImage:[UIImage imageNamed:@"close"] forState:UIControlStateNormal];
     self.dismissButton.layer.borderColor = [UIColor blackColor].CGColor;

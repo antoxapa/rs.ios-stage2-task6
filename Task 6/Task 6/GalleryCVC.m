@@ -38,6 +38,7 @@
     [self addSubview:self.imageView];
     
     self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.imageView.contentMode = UIViewContentModeScaleToFill;
     
     [NSLayoutConstraint activateConstraints:@[
             [self.imageView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],

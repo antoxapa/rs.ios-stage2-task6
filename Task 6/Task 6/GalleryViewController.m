@@ -41,7 +41,165 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    // Fetch all assets, sorted by date created.
+    PHFetchOptions *options = [[PHFetchOptions alloc] init];
+    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
     [PHPhotoLibrary.sharedPhotoLibrary registerChangeObserver:self];
+    
+    if (self.view.frame.size.height>self.view.frame.size.width) {
+        self.numberOfItems = 5;
+    }
+    else{
+        self.numberOfItems = 3;
+    }
+    [self setupViews];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:YES];
+    
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:YES];
+    
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    GalleryCVC *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
+    
+    PHAsset *asset = self.assetsFetchResults[indexPath.item];
+    
+    //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
+        
+        
+        [self.imagesArray addObject:object.objectImage];
+        [self.nameArray addObject:object.objectName];
+        [self.creationDateArray addObject:object.creationDate];
+        [self.modificationDateArray addObject:object.modificationDate];
+        [self.typeArray addObject:object.objectType];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            cell.imageView.image = object.objectImage;
+        });
+    }];
+    //    });
+    return cell;
+}
+- (NSString *)formatTimeFromSeconds:(NSInteger)numberOfSeconds {
+    
+    NSInteger seconds = numberOfSeconds % 60;
+    NSInteger minutes = (numberOfSeconds / 60) % 60;
+    NSInteger hours = numberOfSeconds / 3600;
+    
+    if (hours) {
+        return [NSString stringWithFormat:@"%2ld:%02ld:%02ld", (long)hours, (long)minutes, seconds];
+    }
+    if (minutes) {
+        return [NSString stringWithFormat:@"%2ld:%02ld", (long)minutes, (long)seconds];
+    }
+    return [NSString stringWithFormat:@"0:%02ld", (long)seconds];
+}
+
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.assetsFetchResults.count;
+}
+-(CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    return 5;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    return 5;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (self.view.frame.size.height>self.view.frame.size.width) {
+        self.numberOfItems = 3;
+    }
+    else{
+        self.numberOfItems = 5;
+    }
+    
+    CGFloat width = (self.view.frame.size.width - 10 - (self.numberOfItems-1) * 5) / self.numberOfItems;
+    return CGSizeMake(width, width);
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    
+    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) {
+        self.numberOfItems = 5;
+    }
+    if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
+        self.numberOfItems = 3;
+    }
+    
+    [self.collectionView.collectionViewLayout invalidateLayout];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    ModalViewController *notificationVC = [[ModalViewController alloc] init];
+    notificationVC.image = self.imagesArray[indexPath.row];
+    notificationVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    notificationVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    
+    PHAsset *asset = self.assetsFetchResults[indexPath.row];
+    
+    if (asset.mediaType == PHAssetMediaTypeVideo) {
+        PHVideoRequestOptions *videoOptions = [PHVideoRequestOptions new];
+        [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:videoOptions resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
+            AVPlayer *player = [[AVPlayer alloc]initWithPlayerItem:playerItem];
+            AVPlayerViewController *playerViewController = [AVPlayerViewController new];
+            playerViewController.player = player;
+            [self presentViewController:playerViewController animated:YES completion:^{
+                [playerViewController.player play];
+            }];
+        }];
+    } else {
+        [self presentViewController:notificationVC animated:YES completion:nil];
+    }
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+- (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    
+    if (PHPhotoLibrary.authorizationStatus == PHAuthorizationStatusAuthorized) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            PHFetchOptions *options = [[PHFetchOptions alloc] init];
+            options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+            self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
+        });
+        
+    }
+    
+    PHFetchOptions *options = [[PHFetchOptions alloc]init];
+    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
+    
+    [self.imagesArray removeAllObjects];
+    [self.creationDateArray removeAllObjects];
+    [self.typeArray removeAllObjects];
+    [self.modificationDateArray removeAllObjects];
+    [self.nameArray removeAllObjects];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.collectionView reloadData];
+    });
+}
+
+- (void)setupViews {
+    
+    
     self.imagesArray = [NSMutableArray array];
     self.creationDateArray = [NSMutableArray array];
     self.modificationDateArray = [NSMutableArray array];
@@ -67,138 +225,25 @@
     
     [self.view addSubview:self.collectionView];
     self.collectionView.backgroundColor = UIColor.whiteColor;
-    self.numberOfItems = 3;
     [self.collectionView setContentInset:UIEdgeInsetsMake(5, 5, 5, 5)];
     self.collectionView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    [NSLayoutConstraint activateConstraints:@[
-        [self.collectionView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
-        [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-    ]];
-    
-    
-    // Fetch all assets, sorted by date created.
-    PHFetchOptions *options = [[PHFetchOptions alloc] init];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    GalleryCVC *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    
-    PHAsset *asset = self.assetsFetchResults[indexPath.item];
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
-            
-//            if (asset.mediaType == PHAssetMediaTypeVideo) {
-//                [cell setDuration:[self formatTimeFromSeconds:object.objectDuration.integerValue]];
-//            }
-              
-              [self.imagesArray addObject:object.objectImage];
-              [self.nameArray addObject:object.objectName];
-              [self.creationDateArray addObject:object.creationDate];
-              [self.modificationDateArray addObject:object.modificationDate];
-              [self.typeArray addObject:object.objectType];
-              dispatch_async(dispatch_get_main_queue(), ^{
-                  cell.imageView.image = object.objectImage;
-              });
-          }];
-    });
-    return cell;
-}
-- (NSString *)formatTimeFromSeconds:(NSInteger)numberOfSeconds {
-    
-    NSInteger seconds = numberOfSeconds % 60;
-    NSInteger minutes = (numberOfSeconds / 60) % 60;
-    NSInteger hours = numberOfSeconds / 3600;
-    
-    if (hours) {
-        return [NSString stringWithFormat:@"%2ld:%02ld:%02ld", (long)hours, (long)minutes, seconds];
-    }
-    if (minutes) {
-        return [NSString stringWithFormat:@"%2ld:%02ld", (long)minutes, (long)seconds];
-    }
-    return [NSString stringWithFormat:@"0:%02ld", (long)seconds];
-}
-
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
-}
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.assetsFetchResults.count;
-}
--(CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
-    return 5;
-}
-
-- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-    return 5;
-}
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    CGFloat width = (self.view.frame.size.width - 10 - (self.numberOfItems-1) * 5) / self.numberOfItems;
-    return CGSizeMake(width, width);
-}
-
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    
-    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation)) {
-        self.numberOfItems = 5;
-    }
-    if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
-        self.numberOfItems = 3;
-    }
-    
-    [self.collectionView.collectionViewLayout invalidateLayout];
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-    ModalViewController *notificationVC = [[ModalViewController alloc] init];
-    notificationVC.image = self.imagesArray[indexPath.row];
-    notificationVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-    notificationVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-    
-    PHAsset *asset = self.assetsFetchResults[indexPath.item];
-    
-    if (asset.mediaType == PHAssetMediaTypeVideo) {
-        PHVideoRequestOptions *videoOptions = [PHVideoRequestOptions new];
-          [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:videoOptions resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
-              AVPlayer *player = [[AVPlayer alloc]initWithPlayerItem:playerItem];
-              AVPlayerViewController *playerViewController = [AVPlayerViewController new];
-              playerViewController.player = player;
-              [self presentViewController:playerViewController animated:YES completion:^{
-                  [playerViewController.player play];
-              }];
-          }];
+    if (@available(iOS 11.0, *)) {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.collectionView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+            [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
+            [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
+            [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
+        ]];
     } else {
-            [self presentViewController:notificationVC animated:YES completion:nil];
+        [NSLayoutConstraint activateConstraints:@[
+            [self.collectionView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+            [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+        ]];
     }
-
-}
-
-- (BOOL)prefersStatusBarHidden {
-    return YES;
-}
-
-- (void)photoLibraryDidChange:(PHChange *)changeInstance {
     
-    PHFetchOptions *options = [[PHFetchOptions alloc]init];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-    
-    [self.imagesArray removeAllObjects];
-    [self.creationDateArray removeAllObjects];
-    [self.typeArray removeAllObjects];
-    [self.modificationDateArray removeAllObjects];
-    [self.nameArray removeAllObjects];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.collectionView reloadData];
-    });
 }
 
 

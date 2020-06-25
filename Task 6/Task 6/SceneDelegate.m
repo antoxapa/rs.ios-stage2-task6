@@ -18,8 +18,6 @@
     // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
     UIWindow *window = [[UIWindow alloc]initWithWindowScene:(UIWindowScene *)scene];
    
-    
-//    MainViewController *mainVC = [MainViewController new];
     StartViewController *startVC = [StartViewController new];
     startVC.view.backgroundColor = UIColor.whiteColor;
     
@@ -29,7 +27,6 @@
 
     mainNavController.viewControllers = @[startVC];
     window.rootViewController = mainNavController;
-//    mainTBC.delegate = self;
 
     [window makeKeyAndVisible];
     self.window = window;

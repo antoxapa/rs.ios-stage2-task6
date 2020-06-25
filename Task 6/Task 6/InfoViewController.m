@@ -54,12 +54,21 @@
     self.tableView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.tableView];
     
-    [NSLayoutConstraint activateConstraints:@[
-        [self.tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
-        [self.tableView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.tableView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-    ]];
+    if (@available(iOS 11.0, *)) {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.tableView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+            [self.tableView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
+            [self.tableView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
+            [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
+        ]];
+    } else {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+            [self.tableView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.tableView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+        ]];
+    }
     
     
     [self.tableView registerClass:[InfoTVC class] forCellReuseIdentifier:@"Cell"];
@@ -72,19 +81,19 @@
     self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
     self.mediaManager = [[MediaManager alloc] init];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        for (PHAsset *asset in self.assetsFetchResults) {
-               [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
-                   [self.imagesArray addObject:object.objectImage];
-                   [self.creationDateArray addObject:object.creationDate];
-                   [self.modificationDateArray addObject:object.modificationDate];
-                   [self.typeArray addObject:object.objectType];
-                   [self.nameArray addObject:object.objectName];
-                   [self.sizeArray addObject:object.objectSize];
-                   [self.durationArray addObject:object.objectDuration];
-               }];
-           }
-    });
+    //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    //        for (PHAsset *asset in self.assetsFetchResults) {
+    //            [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
+    //                [self.imagesArray addObject:object.objectImage];
+    //                [self.creationDateArray addObject:object.creationDate];
+    //                [self.modificationDateArray addObject:object.modificationDate];
+    //                [self.typeArray addObject:object.objectType];
+    //                [self.nameArray addObject:object.objectName];
+    //                [self.sizeArray addObject:object.objectSize];
+    //                [self.durationArray addObject:object.objectDuration];
+    //            }];
+    //        }
+    //    });
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -94,50 +103,55 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     InfoTVC * cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     
-    //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    
-//    InfoTVC * cell = (InfoTVC *)[tableView cellForRowAtIndexPath:indexPath];
-//    dispatch_async(dispatch_get_main_queue(), ^{
+    //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    PHAsset *asset = self.assetsFetchResults[indexPath.row];
+    [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
         
-        cell.mainImage.image = self.imagesArray[indexPath.row];
-        cell.title.text = self.nameArray[indexPath.row];
-        NSString *duration = self.durationArray[indexPath.row];
-        if ([self.typeArray[indexPath.row]  isEqual: @"Video"]) {
+        [self.imagesArray addObject:object.objectImage];
+        [self.creationDateArray addObject:object.creationDate];
+        [self.modificationDateArray addObject:object.modificationDate];
+        [self.typeArray addObject:object.objectType];
+        [self.nameArray addObject:object.objectName];
+        [self.sizeArray addObject:object.objectSize];
+        [self.durationArray addObject:object.objectDuration];
+        
+        //            dispatch_async(dispatch_get_main_queue(), ^{
+        cell.mainImage.image = object.objectImage;
+        cell.title.text = object.objectName;
+        NSString *duration = object.objectDuration;
+        if ([object.objectType  isEqual: @"Video"]) {
             
-            cell.subTitle.text = [NSString stringWithFormat:@"%@ %@", self.sizeArray[indexPath.row], [self formatTimeFromSeconds:duration.integerValue]];
+            cell.subTitle.text = [NSString stringWithFormat:@"%@ %@", object.objectSize, [self formatTimeFromSeconds:duration.integerValue]];
             cell.subtitleImage.image = [UIImage imageNamed:@"video"];
             
-        } else if ([self.typeArray[indexPath.row] isEqual: @"Image"]) {
-            cell.subTitle.text = [NSString stringWithFormat:@"%@", [NSString stringWithFormat:@"%@", self.sizeArray[indexPath.row]]];
+        } else if ([object.objectType isEqual: @"Image"]) {
+            cell.subTitle.text = [NSString stringWithFormat:@"%@", [NSString stringWithFormat:@"%@", object.objectSize]];
             cell.subtitleImage.image = [UIImage imageNamed:@"image"];
-        } else if ([self.typeArray[indexPath.row]   isEqual: @"Audio"]) {
+        } else if ([object.objectType   isEqual: @"Audio"]) {
             cell.subTitle.text = [NSString stringWithFormat:@"%@", [self formatTimeFromSeconds:duration.integerValue]];
             cell.subtitleImage.image = [UIImage imageNamed:@"audio"];
-        } else if ([self.typeArray[indexPath.row]   isEqual: @"Other"]) {
+        } else if ([object.objectType  isEqual: @"Other"]) {
             cell.subTitle.text = @"";
             cell.subtitleImage.image = [UIImage imageNamed:@"other"];
         }
-//    });
-//}];
-//    });
-
-return cell;
+        //            });
+    }];
+    //    });
+    return cell;
 }
 
-
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     CGFloat size = 80;
-    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
-    {
-        size = 120;
-    }
     
-    if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation))
-    {
-        size =  80;
+    if (self.view.frame.size.height>self.view.frame.size.width) {
+        size = 80;
     }
-    
+    else{
+        size =  120;
+    }
     return size;
+    
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -151,8 +165,17 @@ return cell;
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
     
+    if (PHPhotoLibrary.authorizationStatus == PHAuthorizationStatusAuthorized) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            PHFetchOptions *options = [[PHFetchOptions alloc] init];
+            options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+            self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
+        });
+        
+    }
+    
     PHFetchOptions *options = [[PHFetchOptions alloc]init];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
     self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -174,8 +197,6 @@ return cell;
     }
     return [NSString stringWithFormat:@"00:%02ld", (long)seconds];
 }
-
-
 
 - (BOOL)prefersStatusBarHidden {
     return YES;

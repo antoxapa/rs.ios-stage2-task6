@@ -49,12 +49,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.appWhiteColor;
-     [self setupViews];
+    [self setupViews];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:YES];
-   
+    
     
 }
 
@@ -63,12 +63,21 @@
     self.scrollView.translatesAutoresizingMaskIntoConstraints = false;
     [self.view addSubview:self.scrollView];
     
-    [NSLayoutConstraint activateConstraints:@[
-        [self.scrollView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
-        [self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.scrollView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.scrollView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-    ]];
+    if (@available(iOS 11.0, *)) {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.scrollView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+            [self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
+            [self.scrollView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
+            [self.scrollView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
+        ]];
+    } else {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.scrollView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+            [self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.scrollView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.scrollView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+        ]];
+    }
     
     self.scrollContentView = [[UIView alloc]init];
     [self.scrollView addSubview:self.scrollContentView];
@@ -178,30 +187,30 @@
     ]];
     
     if (self.asset.mediaType == PHAssetMediaTypeVideo) {
-         
-             [self.detailImageView setUserInteractionEnabled:YES];
-             
-             self.playVideoButton = [UIButton buttonWithType:UIButtonTypeCustom];
-             [self.playVideoButton setImage:[UIImage imageNamed:@"playVideo"] forState:UIControlStateNormal];
-             self.playVideoButton.backgroundColor = [UIColor appYellowColor];
-             self.playVideoButton.alpha = 0.8;
-
-             [self.playVideoButton addTarget:self action:@selector(showVideo) forControlEvents:UIControlEventTouchUpInside];
-
-             self.playVideoButton.translatesAutoresizingMaskIntoConstraints = NO;
-             self.playVideoButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-             [self.detailImageView addSubview:self.playVideoButton];
-             
-            self.playVideoButton.layer.cornerRadius = 35;
-            self.playVideoButton.clipsToBounds = YES;
-             
-             [NSLayoutConstraint activateConstraints:@[
-                 [self.playVideoButton.centerXAnchor constraintEqualToAnchor:self.detailImageView.centerXAnchor],
-                 [self.playVideoButton.centerYAnchor constraintEqualToAnchor:self.detailImageView.centerYAnchor],
-                 [self.playVideoButton.heightAnchor constraintEqualToConstant:70],
-                 [self.playVideoButton.widthAnchor constraintEqualToConstant:70],
-             ]];
-     }
+        
+        [self.detailImageView setUserInteractionEnabled:YES];
+        
+        self.playVideoButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.playVideoButton setImage:[UIImage imageNamed:@"playVideo"] forState:UIControlStateNormal];
+        self.playVideoButton.backgroundColor = [UIColor appYellowColor];
+        self.playVideoButton.alpha = 0.8;
+        
+        [self.playVideoButton addTarget:self action:@selector(showVideo) forControlEvents:UIControlEventTouchUpInside];
+        
+        self.playVideoButton.translatesAutoresizingMaskIntoConstraints = NO;
+        self.playVideoButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        [self.detailImageView addSubview:self.playVideoButton];
+        
+        self.playVideoButton.layer.cornerRadius = 35;
+        self.playVideoButton.clipsToBounds = YES;
+        
+        [NSLayoutConstraint activateConstraints:@[
+            [self.playVideoButton.centerXAnchor constraintEqualToAnchor:self.detailImageView.centerXAnchor],
+            [self.playVideoButton.centerYAnchor constraintEqualToAnchor:self.detailImageView.centerYAnchor],
+            [self.playVideoButton.heightAnchor constraintEqualToConstant:70],
+            [self.playVideoButton.widthAnchor constraintEqualToConstant:70],
+        ]];
+    }
 }
 
 
@@ -254,13 +263,6 @@
         PHVideoRequestOptions *videoOptions = [PHVideoRequestOptions new];
         [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:videoOptions resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
             AVPlayer *player = [[AVPlayer alloc]initWithPlayerItem:playerItem];
-            
-//            AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer: player];
-//            layer.frame = self.view.layer.bounds;
-//            UIView *newView = [[UIView alloc] initWithFrame:self.detailImageView.bounds];
-//            [newView.layer addSublayer:layer];
-//            [self.detailImageView addSubview:newView];
-//            [player play];
             AVPlayerViewController *playerViewController = [AVPlayerViewController new];
             playerViewController.player = player;
             [self presentViewController:playerViewController animated:YES completion:^{

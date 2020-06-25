@@ -21,9 +21,7 @@
         
     } else {
             UIWindow *window = [[UIWindow alloc]init];
-           
-            
-        //    MainViewController *mainVC = [MainViewController new];
+
             StartViewController *startVC = [StartViewController new];
             startVC.view.backgroundColor = UIColor.whiteColor;
             
@@ -33,7 +31,6 @@
 
             mainNavController.viewControllers = @[startVC];
             window.rootViewController = mainNavController;
-        //    mainTBC.delegate = self;
 
             [window makeKeyAndVisible];
             self.window = window;

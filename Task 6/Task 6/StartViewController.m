@@ -34,11 +34,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-  
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
-       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
     
-       [self addSubviews];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+    
+    [self addSubviews];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -47,16 +47,18 @@
 }
 
 - (void)startAnimation {
-   
+    
 #pragma mark: - Views Animation
     CABasicAnimation *circleAnimation;
     circleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale.xy"];
-    circleAnimation.fromValue = [NSNumber numberWithFloat:0.9];
+    //    circleAnimation.fromValue = [NSNumber numberWithFloat:0.9];
+    circleAnimation.fromValue = [NSNumber numberWithFloat:1];
+    circleAnimation.toValue = [NSNumber numberWithFloat:0.9];
     circleAnimation.toValue = [NSNumber numberWithFloat:1.1];
     circleAnimation.duration  = 0.75;
     circleAnimation.repeatCount = INFINITY;
     circleAnimation.autoreverses = true;
-
+    
     CABasicAnimation *squareAnimation;
     squareAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
     squareAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(self.squreView.center.x, self.squreView.center.y  - self.squreView.bounds.size.width * 0.1)];
@@ -103,12 +105,12 @@
     [self.questionLabel setFont:[UIFont systemFontOfSize:24 weight:UIFontWeightMedium]];
     self.questionLabel.translatesAutoresizingMaskIntoConstraints = false;
     [self.labelView addSubview:self.questionLabel];
-//    [self.view addSubview:self.questionLabel];
+    //    [self.view addSubview:self.questionLabel];
     [self.mainStackView addArrangedSubview:self.labelView];
     
     //   Label Layout
     [self.questionLabel.centerXAnchor constraintEqualToAnchor:self.labelView.centerXAnchor].active = true;
-//    [self.questionLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:self.view.bounds.size.height / 6].active = true;
+    //    [self.questionLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:self.view.bounds.size.height / 6].active = true;
     [self.questionLabel.centerYAnchor constraintEqualToAnchor:self.labelView.centerYAnchor constant:15].active = true;
     
     
@@ -128,7 +130,7 @@
     
     //  Configure TriangleView
     self.triangleView = [[TriangleView alloc]init];
-    self.triangleView.backgroundColor = UIColor.whiteColor;
+    self.triangleView.backgroundColor = UIColor.clearColor;
     [self.triangleView.heightAnchor constraintEqualToConstant:70].active = true;
     [self.triangleView.widthAnchor constraintEqualToConstant:70].active = true;
     
@@ -146,7 +148,7 @@
     [self.figuresStackView addArrangedSubview:self.triangleView];
     
     //    Add subviews in rootView
-//    [self.view addSubview:self.figuresStackView];
+    //    [self.view addSubview:self.figuresStackView];
     [self.figuresView addSubview:self.figuresStackView];
     [self.mainStackView addArrangedSubview:self.figuresView];
     
@@ -170,7 +172,7 @@
     self.nextButton.clipsToBounds = YES;
     
     self.nextButton.translatesAutoresizingMaskIntoConstraints = false;
-//    [self.view addSubview:self.nextButton];
+    //    [self.view addSubview:self.nextButton];
     [self.buttonView addSubview:self.nextButton];
     [self.mainStackView addArrangedSubview:self.buttonView];
     [self.view addSubview:self.mainStackView];
@@ -200,7 +202,7 @@
         [self.nextButton.centerXAnchor constraintEqualToAnchor:self.buttonView.centerXAnchor],
         [self.nextButton.topAnchor constraintEqualToAnchor:self.buttonView.topAnchor constant: 30],
     ]];
-
+    
 }
 
 - (void)showNextVC {
@@ -217,8 +219,8 @@
     [self startAnimation];
 }
 
-- (void) applicationDidEnterBackground {
-    [self stopAnimation];
-}
+//- (void) applicationDidEnterBackground {
+////    [self stopAnimation];
+//}
 
 @end

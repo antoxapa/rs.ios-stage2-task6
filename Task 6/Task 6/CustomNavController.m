@@ -17,12 +17,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    //    CGFloat height = 50;
+    //    self.navigationBar.frame = CGRectMake(0, 0, self.navigationBar.frame.size.width, self.navigationBar.frame.size.height + height);
 }
 
--(void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:YES];
-    CGFloat height = 50;
-    self.navigationBar.frame = CGRectMake(0, 0, self.navigationBar.frame.size.width, self.navigationBar.frame.size.height + height);
-}
 
 @end

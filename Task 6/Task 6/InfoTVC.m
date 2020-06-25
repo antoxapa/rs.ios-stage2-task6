@@ -40,7 +40,8 @@
     self.selectedBackgroundView = selectedView;
     
     self.mainImage = [[UIImageView alloc]init];
-    self.mainImage.contentMode =UIViewContentModeScaleAspectFill;
+    self.mainImage.contentMode = UIViewContentModeScaleToFill;
+    
     self.mainImage.clipsToBounds = YES;
    
     self.title = [[UILabel alloc]init];

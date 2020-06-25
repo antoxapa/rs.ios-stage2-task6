@@ -25,11 +25,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     self.delegate = self;
     self.tabBar.tintColor = [UIColor appBlackColor];
+    [self setupView];
+}
 
-#pragma mark: - Setup TabBarItems
+- (void) setupView {
     InfoViewController *infoVC = [[InfoViewController alloc]init];
     infoVC.view.backgroundColor = [UIColor appWhiteColor];
     infoVC.title = @"Info";
