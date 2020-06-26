@@ -107,17 +107,20 @@
     PHAsset *asset = self.assetsFetchResults[indexPath.row];
     [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
         
-        [self.imagesArray addObject:object.objectImage];
-        [self.creationDateArray addObject:object.creationDate];
-        [self.modificationDateArray addObject:object.modificationDate];
-        [self.typeArray addObject:object.objectType];
-        [self.nameArray addObject:object.objectName];
-        [self.sizeArray addObject:object.objectSize];
-        [self.durationArray addObject:object.objectDuration];
-        
+//        [self.imagesArray addObject:object.objectImage];
+//        [self.creationDateArray addObject:object.creationDate];
+//        [self.modificationDateArray addObject:object.modificationDate];
+//        [self.typeArray addObject:object.objectType];
+//        [self.nameArray addObject:object.objectName];
+//        [self.sizeArray addObject:object.objectSize];
+//        [self.durationArray addObject:object.objectDuration];
+//
         //            dispatch_async(dispatch_get_main_queue(), ^{
         cell.mainImage.image = object.objectImage;
         cell.title.text = object.objectName;
+        cell.asset = asset;
+        cell.creationDate = object.creationDate;
+        cell.modificationDate = object.modificationDate;
         NSString *duration = object.objectDuration;
         if ([object.objectType  isEqual: @"Video"]) {
             
@@ -155,10 +158,13 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    DetailViewController *detailVC = [[DetailViewController alloc]initWithInfo:self.imagesArray[indexPath.row] creationDate:self.creationDateArray[indexPath.row] modificationDate:self.modificationDateArray[indexPath.row] type:self.typeArray[indexPath.row]];
-    detailVC.asset = self.assetsFetchResults[indexPath.row];
+    InfoTVC *cell = [InfoTVC new];
+    cell = [tableView cellForRowAtIndexPath:indexPath];
+    
+    DetailViewController *detailVC = [[DetailViewController alloc]initWithInfo:cell.mainImage.image creationDate:cell.creationDate modificationDate:cell.modificationDate asset:cell.asset];
+//    detailVC.asset = self.assetsFetchResults[indexPath.row];
     detailVC.hidesBottomBarWhenPushed = YES;
-    [detailVC.navigationItem setTitle:self.nameArray[indexPath.row]];
+    [detailVC.navigationItem setTitle:cell.title.text];
     [self.navigationController pushViewController:detailVC animated:YES];
 }
 
@@ -171,13 +177,13 @@
             options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
             self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
 //        });
-            [self.sizeArray removeAllObjects];
-              [self.durationArray removeAllObjects];
-            [self.imagesArray removeAllObjects];
-              [self.creationDateArray removeAllObjects];
-              [self.typeArray removeAllObjects];
-              [self.modificationDateArray removeAllObjects];
-              [self.nameArray removeAllObjects];
+//            [self.sizeArray removeAllObjects];
+//              [self.durationArray removeAllObjects];
+//            [self.imagesArray removeAllObjects];
+//              [self.creationDateArray removeAllObjects];
+//              [self.typeArray removeAllObjects];
+//              [self.modificationDateArray removeAllObjects];
+//              [self.nameArray removeAllObjects];
         
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -201,7 +207,7 @@
     NSInteger hours = numberOfSeconds / 3600;
     
     if (hours) {
-        return [NSString stringWithFormat:@"%02ld:%02ld:%02ld", (long)hours, (long)minutes, seconds];
+        return [NSString stringWithFormat:@"%02ld:%02ld:%02ld", (long)hours, (long)minutes, (long)seconds];
     }
     if (minutes) {
         return [NSString stringWithFormat:@"%02ld:%02ld", (long)minutes, (long)seconds];

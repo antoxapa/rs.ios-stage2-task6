@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UILabel *typeField;
 @property (nonatomic, strong) PHAsset *asset;
 
-- (instancetype) initWithInfo:(UIImage *)image creationDate:(NSString *)creationDate modificationDate:(NSString *)modificationDate type:(NSString *)type;
+- (instancetype) initWithInfo:(UIImage *)image creationDate:(NSString *)creationDate modificationDate:(NSString *)modificationDate asset:(PHAsset *)asset;
 
 @end
 

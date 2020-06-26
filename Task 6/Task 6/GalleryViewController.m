@@ -71,7 +71,7 @@
     GalleryCVC *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
     PHAsset *asset = self.assetsFetchResults[indexPath.item];
-    
+     
     //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
     [self.mediaManager downloadAsset:asset completion:^(MediaObject *object) {
         
@@ -95,7 +95,7 @@
     NSInteger hours = numberOfSeconds / 3600;
     
     if (hours) {
-        return [NSString stringWithFormat:@"%2ld:%02ld:%02ld", (long)hours, (long)minutes, seconds];
+        return [NSString stringWithFormat:@"%2ld:%02ld:%02ld", (long)hours, (long)minutes, (long)seconds];
     }
     if (minutes) {
         return [NSString stringWithFormat:@"%2ld:%02ld", (long)minutes, (long)seconds];
@@ -146,7 +146,14 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     ModalViewController *notificationVC = [[ModalViewController alloc] init];
-    notificationVC.image = self.imagesArray[indexPath.row];
+    GalleryCVC *cell = [GalleryCVC new];
+    
+//    This row call Xcode warning "Incompatible pointer types assigning to 'GalleryCVC *' from 'UICollectionViewCell * _Nullable'"
+    cell = [collectionView cellForItemAtIndexPath:indexPath];
+    notificationVC.image = cell.imageView.image;
+    
+    
+//    notificationVC.image = self.imagesArray[indexPath.row];
     notificationVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
     notificationVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
     

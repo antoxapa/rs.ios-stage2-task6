@@ -36,13 +36,13 @@
                 [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
                 NSString *creationDate = [df stringFromDate:asset.creationDate];
                 NSString *modificationDate = [df stringFromDate:asset.creationDate];
-                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", (unsigned long)asset.pixelHeight,  (unsigned long)asset.pixelWidth];
                 
                 MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
                 completion(imageObject);
             }];
         } else {
-            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(asset.pixelWidth, asset.pixelHeight) contentMode:PHImageContentModeAspectFill options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFill options:options resultHandler:^(UIImage *result, NSDictionary *info) {
                 
                 UIImage *image = result;
                 NSString *objectName = [asset valueForKey:@"filename"];
@@ -53,7 +53,7 @@
                 [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
                 NSString *creationDate = [df stringFromDate:asset.creationDate];
                 NSString *modificationDate = [df stringFromDate:asset.creationDate];
-                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu",  (unsigned long)asset.pixelHeight,  (unsigned long)asset.pixelWidth];
                 
                 MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
                 completion(imageObject);
@@ -78,13 +78,13 @@
                 [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
                 NSString *creationDate = [df stringFromDate:asset.creationDate];
                 NSString *modificationDate = [df stringFromDate:asset.creationDate];
-                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu",  (unsigned long)asset.pixelHeight,  (unsigned long)asset.pixelWidth];
                 
                 MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
                 completion(imageObject);
             }];
         } else {
-            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(1000, 1000) contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *result, NSDictionary *info) {
                 UIImage *image = result;
                 NSString *objectName = [asset valueForKey:@"filename"];
                 NSString *objectDuration = [NSString stringWithFormat:@"%f",asset.duration];
@@ -94,7 +94,7 @@
                 [df setDateFormat:@"HH:mm:ss dd.MM.yyyy"];
                 NSString *creationDate = [df stringFromDate:asset.creationDate];
                 NSString *modificationDate = [df stringFromDate:asset.creationDate];
-                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu", asset.pixelHeight, asset.pixelWidth];
+                NSString *objectSize = [NSString stringWithFormat:@"%lux%lu",  (unsigned long)asset.pixelHeight,  (unsigned long)asset.pixelWidth];
                 
                 MediaObject *imageObject = [[MediaObject alloc]initWithInfo:image objectName:objectName objectDuration:objectDuration objectType:objectType creationDate:creationDate modificationDate:modificationDate objectSize:objectSize];
                 completion(imageObject);

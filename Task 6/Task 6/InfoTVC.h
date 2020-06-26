@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Photos/Photos.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,6 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIImageView *subtitleImage;
 @property (nonatomic, strong) UILabel *title;
 @property (nonatomic, strong) UILabel *subTitle;
+@property (nonatomic, strong) NSString *creationDate;
+@property (nonatomic, strong) NSString *modificationDate;
+@property (nonatomic, strong) PHAsset *asset;
 
 @end
 

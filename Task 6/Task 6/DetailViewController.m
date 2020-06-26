@@ -35,13 +35,13 @@
 
 @implementation DetailViewController
 
-- (instancetype)initWithInfo:(UIImage *)image creationDate:(NSString *)creationDate modificationDate:(NSString *)modificationDate type:(NSString *)type {
+- (instancetype)initWithInfo:(UIImage *)image creationDate:(NSString *)creationDate modificationDate:(NSString *)modificationDate asset:(PHAsset *)asset {
     self = [super init];
     if (self) {
         _image = image;
         _creationDate = creationDate;
         _modificationDate = modificationDate;
-        _type = type;
+        _asset = asset;
     }
     return self;
 }
@@ -120,7 +120,16 @@
     [self.modificationDateField setAttributedText: modificationFieldText];
     
     self.typeField = [[UILabel alloc]init];
-    self.typeField.text = [NSString stringWithFormat:@"Type: %@", self.type];
+    if (self.asset.mediaType == PHAssetMediaTypeImage) {
+        self.typeField.text = @"Type: Image";
+    } else if (self.asset.mediaType == PHAssetMediaTypeVideo) {
+        self.typeField.text = @"Type: Video";
+    } else if (self.asset.mediaType == PHAssetMediaTypeAudio) {
+        self.typeField.text = @"Type: Audio";
+    } else {
+        self.typeField.text = @"Type: Other";
+    }
+    
     self.typeField.textColor = [UIColor appBlackColor];
     
     NSMutableAttributedString *typeFieldText = [[NSMutableAttributedString alloc] initWithAttributedString: self.typeField.attributedText];
