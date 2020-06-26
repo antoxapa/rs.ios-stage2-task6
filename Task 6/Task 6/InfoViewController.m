@@ -166,21 +166,32 @@
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
     
     if (PHPhotoLibrary.authorizationStatus == PHAuthorizationStatusAuthorized) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+//        dispatch_async(dispatch_get_main_queue(), ^{
             PHFetchOptions *options = [[PHFetchOptions alloc] init];
             options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
             self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-        });
+//        });
+            [self.sizeArray removeAllObjects];
+              [self.durationArray removeAllObjects];
+            [self.imagesArray removeAllObjects];
+              [self.creationDateArray removeAllObjects];
+              [self.typeArray removeAllObjects];
+              [self.modificationDateArray removeAllObjects];
+              [self.nameArray removeAllObjects];
         
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+               [self.tableView reloadData];
+           });
+    } else {
+        return;
     }
-    
-    PHFetchOptions *options = [[PHFetchOptions alloc]init];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.tableView reloadData];
-    });
+//
+//    PHFetchOptions *options = [[PHFetchOptions alloc]init];
+//    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+//    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
+//
+   
 }
 
 - (NSString *)formatTimeFromSeconds:(NSInteger)numberOfSeconds {

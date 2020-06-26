@@ -81,9 +81,9 @@
         [self.creationDateArray addObject:object.creationDate];
         [self.modificationDateArray addObject:object.modificationDate];
         [self.typeArray addObject:object.objectType];
-        dispatch_async(dispatch_get_main_queue(), ^{
+//        dispatch_async(dispatch_get_main_queue(), ^{
             cell.imageView.image = object.objectImage;
-        });
+//        });
     }];
     //    });
     return cell;
@@ -158,9 +158,11 @@
             AVPlayer *player = [[AVPlayer alloc]initWithPlayerItem:playerItem];
             AVPlayerViewController *playerViewController = [AVPlayerViewController new];
             playerViewController.player = player;
-            [self presentViewController:playerViewController animated:YES completion:^{
-                [playerViewController.player play];
-            }];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentViewController:playerViewController animated:YES completion:^{
+                    [playerViewController.player play];
+                }];
+            });
         }];
     } else {
         [self presentViewController:notificationVC animated:YES completion:nil];
@@ -174,27 +176,32 @@
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
     
     if (PHPhotoLibrary.authorizationStatus == PHAuthorizationStatusAuthorized) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+//        dispatch_async(dispatch_get_main_queue(), ^{
             PHFetchOptions *options = [[PHFetchOptions alloc] init];
             options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
             self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-        });
         
+        [self.imagesArray removeAllObjects];
+        [self.creationDateArray removeAllObjects];
+        [self.typeArray removeAllObjects];
+        [self.modificationDateArray removeAllObjects];
+        [self.nameArray removeAllObjects];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+              [self.collectionView reloadData];
+          });
+//        });
+    } else {
+        return;
     }
+//
+//    PHFetchOptions *options = [[PHFetchOptions alloc]init];
+//    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+//    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
+//
+
     
-    PHFetchOptions *options = [[PHFetchOptions alloc]init];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-    self.assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
-    
-    [self.imagesArray removeAllObjects];
-    [self.creationDateArray removeAllObjects];
-    [self.typeArray removeAllObjects];
-    [self.modificationDateArray removeAllObjects];
-    [self.nameArray removeAllObjects];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.collectionView reloadData];
-    });
+  
 }
 
 - (void)setupViews {

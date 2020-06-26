@@ -265,9 +265,11 @@
             AVPlayer *player = [[AVPlayer alloc]initWithPlayerItem:playerItem];
             AVPlayerViewController *playerViewController = [AVPlayerViewController new];
             playerViewController.player = player;
-            [self presentViewController:playerViewController animated:YES completion:^{
-                [playerViewController.player play];
-            }];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentViewController:playerViewController animated:YES completion:^{
+                    [playerViewController.player play];
+                }];
+            });
         }];
     }
     

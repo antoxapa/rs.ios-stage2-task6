@@ -42,7 +42,7 @@
                 completion(imageObject);
             }];
         } else {
-            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(1000, 1000) contentMode:PHImageContentModeAspectFit options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+            [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(asset.pixelWidth, asset.pixelHeight) contentMode:PHImageContentModeAspectFill options:options resultHandler:^(UIImage *result, NSDictionary *info) {
                 
                 UIImage *image = result;
                 NSString *objectName = [asset valueForKey:@"filename"];
